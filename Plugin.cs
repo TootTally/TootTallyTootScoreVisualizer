@@ -61,9 +61,7 @@ namespace TootTallyTootScoreVisualizer
             ConfigFile config = new ConfigFile(configPath + CONFIG_NAME, true);
             TSVName = config.Bind("Generic", nameof(TSVName), "Default", "Enter the name of your config here. Do not put the .xml extension.");
 
-            settingPage = TootTallySettingsManager.AddNewPage("ModulePageName", "HeaderText", 40f, new Color(0, 0, 0, 0));
             config.SettingChanged += Config_SettingChanged;
-
             string targetFolderPath = Path.Combine(Paths.BepInExRootPath, "TootScoreVisualizer");
             if (!Directory.Exists(targetFolderPath))
             {
