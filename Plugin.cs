@@ -5,6 +5,7 @@ using HarmonyLib;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using TootTallyCore.Utils.Helpers;
 using TootTallyCore.Utils.TootTallyModules;
 using TootTallySettings;
 using UnityEngine;
@@ -62,20 +63,11 @@ namespace TootTallyTootScoreVisualizer
             TSVName = config.Bind("Generic", nameof(TSVName), "Default", "Enter the name of your config here. Do not put the .xml extension.");
 
             config.SettingChanged += Config_SettingChanged;
-            string targetFolderPath = Path.Combine(Paths.BepInExRootPath, "TootScoreVisualizer");
-            if (!Directory.Exists(targetFolderPath))
-            {
-                string sourceFolderPath = Path.Combine(Path.GetDirectoryName(Plugin.Instance.Info.Location), "TootScoreVisualizer");
-                LogInfo("TootScoreVisualizer folder not found. Attempting to move folder from " + sourceFolderPath + " to " + targetFolderPath);
-                if (Directory.Exists(sourceFolderPath))
-                    Directory.Move(sourceFolderPath, targetFolderPath);
-                else
-                {
-                    LogError("Source TootScoreVisualizer Folder Not Found. Cannot Create TootScoreVisualizer Folder. Download the module again to fix the issue.");
-                    return;
-                }
 
-            }
+            string sourceFolderPath = Path.Combine(Path.GetDirectoryName(Plugin.Instance.Info.Location), "TootScoreVisualizer");
+            string targetFolderPath = Path.Combine(Paths.BepInExRootPath, "TootScoreVisualizer");
+            FileHelper.TryMigrateFolder(sourceFolderPath, targetFolderPath, true);
+
             settingPage = TootTallySettingsManager.AddNewPage(SETTINGS_PAGE_NAME, "TootScoreVisualizer", 40, new UnityEngine.Color(.1f, .1f, .1f, .1f));
             var fileNames = new List<string>();
             if (Directory.Exists(targetFolderPath))
