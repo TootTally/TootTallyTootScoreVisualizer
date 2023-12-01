@@ -59,7 +59,10 @@ namespace TootTallyTootScoreVisualizer
 
         public void LoadModule()
         {
-            AssetManager.LoadSingleAsset(Path.Combine(Path.GetDirectoryName(Instance.Info.Location), "icon.png"), "TootScoreVisualizerIcon.png");
+            var iconPath = Path.Combine(Path.GetDirectoryName(Instance.Info.Location), "icon.png");
+            if (!File.Exists(iconPath))
+                iconPath = Path.Combine(Path.GetDirectoryName(Instance.Info.Location), "../icon.png");
+            AssetManager.LoadSingleAsset(iconPath, "TootScoreVisualizerIcon.png");
 
             string configPath = Path.Combine(Paths.BepInExRootPath, "config/");
             ConfigFile config = new ConfigFile(configPath + CONFIG_NAME, true);
