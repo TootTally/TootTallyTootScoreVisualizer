@@ -5,6 +5,7 @@ using HarmonyLib;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using TootTallyCore.Utils.Assets;
 using TootTallyCore.Utils.Helpers;
 using TootTallyCore.Utils.TootTallyModules;
 using TootTallySettings;
@@ -58,6 +59,8 @@ namespace TootTallyTootScoreVisualizer
 
         public void LoadModule()
         {
+            AssetManager.LoadSingleAsset(Path.Combine(Path.GetDirectoryName(Instance.Info.Location), "icon.png"), "TootScoreVisualizerIcon.png");
+
             string configPath = Path.Combine(Paths.BepInExRootPath, "config/");
             ConfigFile config = new ConfigFile(configPath + CONFIG_NAME, true);
             TSVName = config.Bind("Generic", nameof(TSVName), "Default", "Enter the name of your config here. Do not put the .xml extension.");
@@ -69,6 +72,7 @@ namespace TootTallyTootScoreVisualizer
             FileHelper.TryMigrateFolder(sourceFolderPath, targetFolderPath, true);
 
             settingPage = TootTallySettingsManager.AddNewPage(SETTINGS_PAGE_NAME, "TootScoreVisualizer", 40, new UnityEngine.Color(.1f, .1f, .1f, .1f));
+            settingPage.AddImageToPageButton("TootScoreVisualizerIcon.png");
             var fileNames = new List<string>();
             if (Directory.Exists(targetFolderPath))
             {
