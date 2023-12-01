@@ -59,11 +59,6 @@ namespace TootTallyTootScoreVisualizer
 
         public void LoadModule()
         {
-            var iconPath = Path.Combine(Path.GetDirectoryName(Instance.Info.Location), "icon.png");
-            if (!File.Exists(iconPath))
-                iconPath = Path.Combine(Path.GetDirectoryName(Instance.Info.Location), "../icon.png");
-            AssetManager.LoadSingleAsset(iconPath, "TootScoreVisualizerIcon.png");
-
             string configPath = Path.Combine(Paths.BepInExRootPath, "config/");
             ConfigFile config = new ConfigFile(configPath + CONFIG_NAME, true);
             TSVName = config.Bind("Generic", nameof(TSVName), "Default", "Enter the name of your config here. Do not put the .xml extension.");
@@ -75,7 +70,6 @@ namespace TootTallyTootScoreVisualizer
             FileHelper.TryMigrateFolder(sourceFolderPath, targetFolderPath, true);
 
             settingPage = TootTallySettingsManager.AddNewPage(SETTINGS_PAGE_NAME, "TootScoreVisualizer", 40, new UnityEngine.Color(.1f, .1f, .1f, .1f));
-            settingPage.AddImageToPageButton("TootScoreVisualizerIcon.png");
             var fileNames = new List<string>();
             if (Directory.Exists(targetFolderPath))
             {
@@ -84,6 +78,8 @@ namespace TootTallyTootScoreVisualizer
             }
             settingPage.AddDropdown("TSVDropdown", TSVName, fileNames.ToArray());
             ResolvePresets();
+
+            TootTallySettings.Plugin.TryAddThunderstoreIconToPageButton(Instance.Info.Location, Name, settingPage);
 
             _harmony.PatchAll(typeof(TSVPatches));
             LogInfo($"Module loaded!");
