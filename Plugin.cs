@@ -11,7 +11,6 @@ using TootTallyCore.Utils.TootTallyModules;
 using TootTallySettings;
 using UnityEngine;
 using UnityEngine.UI;
-using static Rewired.InputMapper;
 
 namespace TootTallyTootScoreVisualizer
 {
@@ -26,7 +25,6 @@ namespace TootTallyTootScoreVisualizer
         private const string CONFIG_NAME = "TootScoreVisualizer.cfg";
         private const string SETTINGS_PAGE_NAME = "TootScoreVisualizer";
         public static string currentLoadedConfigName;
-        public static bool isTextInitialized;
 
         private Harmony _harmony;
         public ConfigEntry<bool> ModuleConfigEnabled { get; set; }
@@ -103,10 +101,9 @@ namespace TootTallyTootScoreVisualizer
 
             [HarmonyPatch(typeof(GameController), nameof(GameController.Start))]
             [HarmonyPostfix]
-            public static void OnLoadControllerLoadGameplayAsyncPostfix()
+            public static void OnLoadControllerLoadGameplayAsyncPostfix(GameController __instance)
             {
                 ResolvePresets();
-                isTextInitialized = false;
             }
 
             [HarmonyPatch(typeof(GameController), nameof(GameController.getScoreAverage))]
@@ -117,25 +114,13 @@ namespace TootTallyTootScoreVisualizer
                 noteScoreAverage = __instance.notescoreaverage;
             }
 
+            private static int _lastNoteEffectIndex;
+
             [HarmonyPatch(typeof(GameController), nameof(GameController.animateOutNote))]
             [HarmonyPrefix]
-
-            public static void OnGameControllerAnimateOutNotePrefix(GameController __instance, ref noteendeffect[] ___allnoteendeffects)
+            public static void OnGameControllerAnimateOutNotePrefix(GameController __instance)
             {
-                if (!TSVConfig.configLoaded) return;
-                if (!isTextInitialized)
-                {
-                    foreach (noteendeffect noteendeffect in ___allnoteendeffects)
-                    {
-                        noteendeffect.combotext_txt_front.supportRichText = noteendeffect.combotext_txt_shadow.supportRichText = true;
-                        noteendeffect.combotext_txt_front.horizontalOverflow = noteendeffect.combotext_txt_shadow.horizontalOverflow = HorizontalWrapMode.Overflow;
-                        noteendeffect.combotext_txt_front.verticalOverflow = noteendeffect.combotext_txt_shadow.verticalOverflow = VerticalWrapMode.Overflow;
-                    }
-                    isTextInitialized = true;
-                }
-
-
-                noteParticles_index = __instance.noteparticles_index;
+                _lastNoteEffectIndex = __instance.noteparticles_index;
             }
 
             [HarmonyPatch(typeof(GameController), nameof(GameController.animateOutNote))]
@@ -145,7 +130,9 @@ namespace TootTallyTootScoreVisualizer
                 if (!TSVConfig.configLoaded) return;
                 Threshold threshold = TSVConfig.GetScoreThreshold(noteScoreAverage);
 
-                noteendeffect currentEffect = ___allnoteendeffects[noteParticles_index];
+                noteendeffect currentEffect = ___allnoteendeffects[_lastNoteEffectIndex];
+                currentEffect.combotext_txt_front.horizontalOverflow = currentEffect.combotext_txt_shadow.horizontalOverflow = HorizontalWrapMode.Overflow;
+                currentEffect.combotext_txt_front.verticalOverflow = currentEffect.combotext_txt_shadow.verticalOverflow = VerticalWrapMode.Overflow;
                 currentEffect.combotext_txt_front.text = threshold.GetFormattedText(noteScoreAverage, __instance.multiplier);
                 currentEffect.combotext_txt_shadow.text = threshold.GetFormattedTextNoColor(noteScoreAverage, __instance.multiplier);
                 currentEffect.combotext_txt_front.color = threshold.color;
@@ -164,37 +151,40 @@ namespace TootTallyTootScoreVisualizer
         //Yoinked that from basegame using DNSpy
         public struct noteendeffect
         {
-            // Token: 0x040007C3 RID: 1987
+            // Token: 0x04000E4F RID: 3663
             public GameObject noteeffect_obj;
 
-            // Token: 0x040007C4 RID: 1988
+            // Token: 0x04000E50 RID: 3664
             public RectTransform noteeffect_rect;
 
-            // Token: 0x040007C5 RID: 1989
+            // Token: 0x04000E51 RID: 3665
             public GameObject burst_obj;
 
-            // Token: 0x040007C6 RID: 1990
+            // Token: 0x04000E52 RID: 3666
             public Image burst_img;
 
-            // Token: 0x040007C7 RID: 1991
+            // Token: 0x04000E53 RID: 3667
             public CanvasGroup burst_canvasg;
 
-            // Token: 0x040007C8 RID: 1992
+            // Token: 0x04000E54 RID: 3668
+            public ParticleSystem burst_particles;
+
+            // Token: 0x04000E55 RID: 3669
             public GameObject drops_obj;
 
-            // Token: 0x040007C9 RID: 1993
+            // Token: 0x04000E56 RID: 3670
             public CanvasGroup drops_canvasg;
 
-            // Token: 0x040007CA RID: 1994
+            // Token: 0x04000E57 RID: 3671
             public GameObject combotext_obj;
 
-            // Token: 0x040007CB RID: 1995
+            // Token: 0x04000E58 RID: 3672
             public RectTransform combotext_rect;
 
-            // Token: 0x040007CC RID: 1996
+            // Token: 0x04000E59 RID: 3673
             public Text combotext_txt_front;
 
-            // Token: 0x040007CD RID: 1997
+            // Token: 0x04000E5A RID: 3674
             public Text combotext_txt_shadow;
         }
 
