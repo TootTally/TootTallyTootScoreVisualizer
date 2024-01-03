@@ -49,6 +49,12 @@ namespace TootTallyTootScoreVisualizer
 
         private void TryInitialize()
         {
+            if (Application.version.CompareTo("1.19A") < 0)
+            {
+                Plugin.LogInfo("Please install Trombone Champ 1.19A version or later.");
+                return;
+            }
+
             // Bind to the TTModules Config for TootTally
             ModuleConfigEnabled = TootTallyCore.Plugin.Instance.Config.Bind("Modules", "TootScoreVisualizer", true, "Enables text popup customization when playing notes.");
             TootTallyModuleManager.AddModule(this);
