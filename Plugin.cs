@@ -112,7 +112,7 @@ namespace TootTallyTootScoreVisualizer
                 ResolvePresets();
             }
 
-            [HarmonyPatch(typeof(GameController), nameof(GameController.getScoreAverage))]
+            [HarmonyPatch(typeof(GameController), nameof(GameController.doScoreText))]
             [HarmonyPrefix]
 
             public static void OnGameControllerGetScoreAveragePrefix(GameController __instance)
